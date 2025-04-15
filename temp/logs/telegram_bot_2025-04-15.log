@@ -1,0 +1,24 @@
+2025-04-15 18:35:18,501 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 18:35:18,501 - telegram_bot - INFO - Đã thêm tài khoản 8467449819 thành công
+2025-04-15 18:36:20,953 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 18:36:20,953 - telegram_bot - INFO - Đã xóa tài khoản 8467449819 thành công
+2025-04-15 18:36:45,004 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 18:36:45,005 - telegram_bot - INFO - Đã thêm tài khoản +8467449819 thành công
+2025-04-15 18:44:12,405 - telegram_bot - ERROR - Không tìm thấy tài khoản với số điện thoại +18467449819
+2025-04-15 18:44:49,223 - telegram_bot - INFO - Gửi yêu cầu xác thực đến số +8467449819
+2025-04-15 18:44:49,953 - telegram_bot - ERROR - Lỗi xác thực: The phone number is invalid (caused by SendCodeRequest)
+2025-04-15 18:45:15,920 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 18:45:15,920 - telegram_bot - INFO - Đã xóa tài khoản +8467449819 thành công
+2025-04-15 18:46:29,287 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 18:46:29,287 - telegram_bot - INFO - Đã thêm tài khoản +840767449819 thành công
+2025-04-15 18:49:36,805 - telegram_bot - ERROR - Lỗi khi tạo client cho tài khoản +840767449819: There is no current event loop in thread 'Dummy-1'.
+2025-04-15 19:03:24,458 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 19:03:24,458 - telegram_bot - INFO - Đã xóa tài khoản +840767449819 thành công
+2025-04-15 19:03:48,824 - telegram_bot - INFO - Đã lưu danh sách tài khoản thành công
+2025-04-15 19:03:48,826 - telegram_bot - INFO - Đã thêm tài khoản +840767449819 thành công
+2025-04-15 19:04:25,523 - telegram_bot - ERROR - Lỗi khi tạo client cho tài khoản +840767449819: There is no current event loop in thread 'Dummy-1'.
+2025-04-15 19:04:41,713 - telegram_bot - ERROR - Lỗi khi tạo client cho tài khoản +840767449819: There is no current event loop in thread 'Dummy-2'.
+2025-04-15 19:29:43,829 - telegram_bot - INFO - Bắt đầu scrape từ Phantom_Arena với giới hạn: 1000
+2025-04-15 19:29:44,089 - telegram_bot - INFO - Hoàn tất scrape, tổng cộng 8 thành viên
+2025-04-15 19:31:27,786 - telegram_bot - INFO - Bắt đầu scrape từ PythonHub với giới hạn: 1000
+2025-04-15 19:31:27,834 - telegram_bot - ERROR - Lỗi khi scrape: Chat admin privileges are required to do that in the specified chat (for example, to send a message in a channel which is not yours), or invalid permissions used for the channel or group (caused by GetParticipantsRequest)

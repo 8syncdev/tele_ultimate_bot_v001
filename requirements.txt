@@ -1,0 +1,12 @@
+# bot API
+telethon
+
+# UI desktop app, PyQT and PySide
+pyqt6
+pyside6
+
+# python-dotenv
+python-dotenv
+
+
+
