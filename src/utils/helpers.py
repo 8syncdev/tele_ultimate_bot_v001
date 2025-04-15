@@ -28,14 +28,43 @@ def save_to_csv(file_path: str, data: List[Dict[str, Any]], headers: List[str]):
         writer.writeheader()
         writer.writerows(data)
 
-def load_from_csv(file_path: str) -> List[Dict[str, str]]:
-    """Đọc dữ liệu từ file CSV"""
+def load_from_csv(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Đọc dữ liệu từ file CSV và chuyển đổi các trường số và boolean sang kiểu dữ liệu phù hợp
+    
+    Args:
+        file_path: Đường dẫn đến file CSV cần đọc
+        
+    Returns:
+        Danh sách các bản ghi từ file CSV với kiểu dữ liệu đã được chuyển đổi
+    """
     result = []
     try:
         with open(file_path, 'r', encoding='UTF-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                result.append(row)
+                # Chuyển đổi các trường numeric
+                processed_row = {}
+                for key, value in row.items():
+                    if key in ['user_id', 'id'] and value:
+                        try:
+                            processed_row[key] = int(value)
+                        except (ValueError, TypeError):
+                            processed_row[key] = value
+                    elif key == 'access_hash' and value:
+                        try:
+                            processed_row[key] = int(value)
+                        except (ValueError, TypeError):
+                            processed_row[key] = value
+                    elif key == 'group_id' and value:
+                        try:
+                            processed_row[key] = int(value)
+                        except (ValueError, TypeError):
+                            processed_row[key] = value
+                    else:
+                        processed_row[key] = value
+                
+                result.append(processed_row)
     except FileNotFoundError:
         pass
     return result

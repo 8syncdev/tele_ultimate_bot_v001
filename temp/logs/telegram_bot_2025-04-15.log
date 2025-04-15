@@ -35,3 +35,55 @@
 2025-04-15 19:37:54,126 - telegram_bot - INFO - Đã tìm thêm 182 thành viên với từ khóa 'f', tổng: 1076
 2025-04-15 19:37:54,126 - telegram_bot - INFO - Đã đạt giới hạn 1000 thành viên, dừng scrape
 2025-04-15 19:37:54,127 - telegram_bot - INFO - Đã scrape tổng cộng 1000 thành viên
+2025-04-15 20:06:55,124 - telegram_bot - INFO - Đã tìm thêm 2 thành viên với từ khóa 'a', tổng: 2
+2025-04-15 20:06:55,124 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'a': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:55,289 - telegram_bot - INFO - Đã tìm thêm 2 thành viên với từ khóa 'b', tổng: 4
+2025-04-15 20:06:55,290 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'b': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:55,658 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 'd', tổng: 5
+2025-04-15 20:06:55,659 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'd': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:56,117 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'g': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:56,451 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'i': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:56,603 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 'j', tổng: 6
+2025-04-15 20:06:56,604 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'j': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:56,918 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'l': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:57,063 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'm': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:58,034 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 's', tổng: 7
+2025-04-15 20:06:58,035 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 's': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:58,171 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 't': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:06:58,629 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'w': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 20:08:38,763 - telegram_bot - INFO - Đã tìm thêm 2 thành viên với từ khóa 'a', tổng: 2
+2025-04-15 20:08:39,606 - telegram_bot - INFO - Đã tìm thêm 2 thành viên với từ khóa 'b', tổng: 4
+2025-04-15 20:08:40,721 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 'd', tổng: 5
+2025-04-15 20:08:43,963 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 'j', tổng: 6
+2025-04-15 20:08:48,875 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa 's', tổng: 7
+2025-04-15 20:09:10,314 - telegram_bot - INFO - Đã tìm thêm 1 thành viên với từ khóa '_', tổng: 8
+2025-04-15 20:09:12,085 - telegram_bot - INFO - Đã scrape tổng cộng 8 thành viên
+2025-04-15 20:09:12,086 - telegram_bot - INFO - Đã lưu 8 thành viên vào file E:\freelancer\tele_ultimate_bot\temp\members\Bitget_Web3_钱包中文社区私聊的都是骗子.csv
+2025-04-15 20:09:28,416 - telegram_bot - INFO - Đã tìm thêm 200 thành viên với từ khóa 'a', tổng: 200
+2025-04-15 20:09:29,207 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'b', tổng: 377
+2025-04-15 20:09:30,532 - telegram_bot - INFO - Đã tìm thêm 176 thành viên với từ khóa 'c', tổng: 553
+2025-04-15 20:09:31,811 - telegram_bot - INFO - Đã tìm thêm 165 thành viên với từ khóa 'd', tổng: 718
+2025-04-15 20:09:32,813 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'e', tổng: 895
+2025-04-15 20:09:34,522 - telegram_bot - INFO - Đã tìm thêm 182 thành viên với từ khóa 'f', tổng: 1077
+2025-04-15 20:09:34,523 - telegram_bot - INFO - Đã đạt giới hạn 1000 thành viên, dừng scrape
+2025-04-15 20:09:34,523 - telegram_bot - INFO - Đã scrape tổng cộng 1000 thành viên
+2025-04-15 20:09:34,546 - telegram_bot - INFO - Đã lưu 1000 thành viên vào file E:\freelancer\tele_ultimate_bot\temp\members\Quán_Trọ_Bướm_Đêm.csv
+2025-04-15 20:11:56,562 - telegram_bot - INFO - Đã tìm thêm 200 thành viên với từ khóa 'a', tổng: 200
+2025-04-15 20:11:57,943 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'b', tổng: 377
+2025-04-15 20:11:59,243 - telegram_bot - INFO - Đã tìm thêm 176 thành viên với từ khóa 'c', tổng: 553
+2025-04-15 20:12:00,758 - telegram_bot - INFO - Đã tìm thêm 165 thành viên với từ khóa 'd', tổng: 718
+2025-04-15 20:12:02,146 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'e', tổng: 895
+2025-04-15 20:12:03,609 - telegram_bot - INFO - Đã tìm thêm 182 thành viên với từ khóa 'f', tổng: 1077
+2025-04-15 20:12:03,609 - telegram_bot - INFO - Đã đạt giới hạn 1000 thành viên, dừng scrape
+2025-04-15 20:12:03,609 - telegram_bot - INFO - Đã scrape tổng cộng 1000 thành viên
+2025-04-15 20:12:03,626 - telegram_bot - INFO - Đã lưu 1000 thành viên vào file E:\freelancer\tele_ultimate_bot\temp\members\Quán_Trọ_Bướm_Đêm.csv
+2025-04-15 20:15:50,886 - telegram_bot - INFO - Đã tìm thêm 200 thành viên với từ khóa 'a', tổng: 200
+2025-04-15 20:15:51,815 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'b', tổng: 377
+2025-04-15 20:15:53,203 - telegram_bot - INFO - Đã tìm thêm 176 thành viên với từ khóa 'c', tổng: 553
+2025-04-15 20:15:54,376 - telegram_bot - INFO - Đã tìm thêm 165 thành viên với từ khóa 'd', tổng: 718
+2025-04-15 20:15:55,484 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'e', tổng: 895
+2025-04-15 20:15:56,499 - telegram_bot - INFO - Đã tìm thêm 182 thành viên với từ khóa 'f', tổng: 1077
+2025-04-15 20:15:56,499 - telegram_bot - INFO - Đã đạt giới hạn 1000 thành viên, dừng scrape
+2025-04-15 20:15:56,500 - telegram_bot - INFO - Đã scrape tổng cộng 1000 thành viên
+2025-04-15 20:15:56,526 - telegram_bot - INFO - Đã lưu 1000 thành viên vào file E:\freelancer\tele_ultimate_bot\temp\members\Quán_Trọ_Bướm_Đêm.csv
+2025-04-15 20:18:52,746 - telegram_bot - INFO - Đã tham gia nhóm/kênh sync8dev

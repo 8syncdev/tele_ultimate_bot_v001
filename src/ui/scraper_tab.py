@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
-from config import TEMP_DIR
+from src.config import TEMP_DIR, MEMBERS_DIR, MEMBER_CSV_FIELDS
 from src.core.telegram_client import TelegramAccountManager
 from src.ui.workers import ScraperWorker
 from src.utils.helpers import save_to_csv
@@ -269,7 +269,7 @@ class ScraperTab(QWidget):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Chọn vị trí lưu file CSV",
-            str(TEMP_DIR / "members.csv"),
+            str(MEMBERS_DIR / "members.csv"),
             "CSV Files (*.csv)"
         )
         
@@ -285,13 +285,13 @@ class ScraperTab(QWidget):
         # Lấy đường dẫn file
         file_path = self.export_path_input.text().strip()
         if not file_path:
-            file_path = str(TEMP_DIR / "members.csv")
+            file_path = str(MEMBERS_DIR / "members.csv")
             self.export_path_input.setText(file_path)
         
         # Xuất ra CSV
         try:
-            headers = ['id', 'access_hash', 'username', 'first_name', 'last_name', 'status', 'group', 'group_id']
-            save_to_csv(file_path, self.members, headers)
+            # Sử dụng các trường từ cấu hình
+            save_to_csv(file_path, self.members, MEMBER_CSV_FIELDS)
             
             QMessageBox.information(
                 self, 

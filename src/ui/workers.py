@@ -105,4 +105,53 @@ class AdderWorker(QThread):
         finally:
             # Dọn dẹp event loop
             if self.loop:
+                self.loop.close()
+
+
+class CSVAdderWorker(QThread):
+    """Worker thread cho việc thêm thành viên từ file CSV"""
+    progress_signal = pyqtSignal(int, int, bool, dict, str)
+    finished_signal = pyqtSignal(int, int)  # success_count, failed_count
+    error_signal = pyqtSignal(str)
+    
+    def __init__(self, account_manager: TelegramAccountManager, phone: str, target_group: str, 
+                csv_file: str, delay: int = 30):
+        super().__init__()
+        self.account_manager = account_manager
+        self.phone = phone
+        self.target_group = target_group
+        self.csv_file = csv_file
+        self.delay = delay
+        self.adder = TelegramAdder(account_manager)
+        self.loop = None
+    
+    def run(self):
+        """Thực hiện thêm thành viên từ file CSV"""
+        try:
+            # Thiết lập event loop cho thread hiện tại
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            
+            def progress_callback(current, total, success, member, error_msg=""):
+                self.progress_signal.emit(current, total, success, member, error_msg)
+            
+            success_count, failed_count, error = self.adder.add_members_from_csv(
+                self.phone,
+                self.target_group,
+                self.csv_file,
+                self.delay,
+                progress_callback
+            )
+            
+            if error:
+                self.error_signal.emit(error)
+            else:
+                self.finished_signal.emit(success_count, failed_count)
+                
+        except Exception as e:
+            logger.error(f"Lỗi CSVAdderWorker: {str(e)}")
+            self.error_signal.emit(str(e))
+        finally:
+            # Dọn dẹp event loop
+            if self.loop:
                 self.loop.close() 

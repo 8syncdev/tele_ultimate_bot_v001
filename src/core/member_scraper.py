@@ -3,6 +3,8 @@ Module xử lý việc scrape thành viên từ nhóm/kênh Telegram
 """
 from typing import List, Dict, Any, Optional, Tuple, Callable
 import time
+import csv
+from pathlib import Path
 
 from telethon.tl.functions.channels import GetParticipantsRequest
 from telethon.tl.types import ChannelParticipantsSearch, InputPeerChannel
@@ -11,7 +13,7 @@ from telethon.errors import FloodWaitError
 from src.core.account_manager import TelegramAccountManager
 from src.core.telegram_utils import random_sleep, DEFAULT_SMALL_DELAY, DEFAULT_MEDIUM_DELAY
 from src.utils.logger import logger
-from config import TEMP_DIR
+from src.config import MEMBERS_DIR, MEMBER_CSV_FIELDS, DEFAULT_MEMBERS_FILE
 
 class TelegramScraper:
     """Lớp xử lý việc scrape thành viên từ các nhóm/kênh Telegram"""
@@ -24,7 +26,7 @@ class TelegramScraper:
             account_manager: Đối tượng quản lý tài khoản
         """
         self.account_manager = account_manager
-        self.members_dir = TEMP_DIR / 'members'
+        self.members_dir = MEMBERS_DIR
         
         # Tạo thư mục members nếu chưa tồn tại
         if not self.members_dir.exists():
@@ -126,7 +128,7 @@ class TelegramScraper:
                         break
                     
                     # Nghỉ ngắn giữa các lần tìm kiếm để tránh FloodWaitError
-                    random_sleep(0.5)
+                    random_sleep(0.5, 1.5)
                 
                 except FloodWaitError as e:
                     wait_time = e.seconds
@@ -150,9 +152,9 @@ class TelegramScraper:
             # Chuyển đổi danh sách thành viên sang định dạng cần thiết
             for user in all_participants:
                 user_data = {
-                    'id': user.id,
-                    'access_hash': user.access_hash,
                     'username': user.username if user.username else "",
+                    'user_id': user.id,
+                    'access_hash': user.access_hash,
                     'first_name': user.first_name if hasattr(user, 'first_name') else "",
                     'last_name': user.last_name if hasattr(user, 'last_name') else "",
                     'status': str(user.status.__class__.__name__) if user.status else "Unknown",
@@ -160,6 +162,9 @@ class TelegramScraper:
                     'group_id': entity.id
                 }
                 members.append(user_data)
+            
+            # Lưu danh sách thành viên vào file csv
+            self._save_members_to_csv(members, entity.title)
             
             # Ngắt kết nối
             client.disconnect()
@@ -170,4 +175,52 @@ class TelegramScraper:
             logger.error(f"Lỗi scrape members: {str(e)}")
             if client:
                 client.disconnect()
-            return [], str(e) 
+            return [], str(e)
+            
+    def _save_members_to_csv(self, members: List[Dict[str, Any]], group_name: str) -> str:
+        """
+        Lưu danh sách thành viên vào file CSV
+        
+        Args:
+            members: Danh sách thành viên
+            group_name: Tên nhóm/kênh
+        
+        Returns:
+            Đường dẫn đến file CSV đã lưu
+        """
+        # Tạo tên file an toàn từ tên nhóm (loại bỏ ký tự đặc biệt)
+        safe_group_name = "".join(c for c in group_name if c.isalnum() or c in [' ', '_']).strip()
+        safe_group_name = safe_group_name.replace(' ', '_')
+        
+        # Nếu tên file quá dài, cắt ngắn lại
+        if len(safe_group_name) > 50:
+            safe_group_name = safe_group_name[:50]
+        
+        # Nếu tên nhóm rỗng, sử dụng tên mặc định
+        if not safe_group_name:
+            safe_group_name = DEFAULT_MEMBERS_FILE.split('.')[0]
+            
+        # Đường dẫn tới file CSV
+        csv_path = self.members_dir / f"{safe_group_name}.csv"
+        
+        # Lưu vào file CSV
+        with open(csv_path, 'w', encoding='UTF-8', newline='') as f:
+            writer = csv.writer(f, delimiter=',', lineterminator='\n')
+            # Ghi header
+            writer.writerow(MEMBER_CSV_FIELDS)
+            
+            # Ghi dữ liệu
+            for member in members:
+                # Chuẩn bị dữ liệu theo thứ tự các trường
+                row = [
+                    member.get('username', ''),
+                    member.get('user_id', ''),
+                    member.get('access_hash', ''),
+                    member.get('group', ''),
+                    member.get('group_id', ''),
+                    member.get('status', '')
+                ]
+                writer.writerow(row)
+                
+        logger.info(f"Đã lưu {len(members)} thành viên vào file {csv_path}")
+        return str(csv_path) 

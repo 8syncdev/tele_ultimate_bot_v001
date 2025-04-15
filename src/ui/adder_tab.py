@@ -9,9 +9,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
-from config import TEMP_DIR
+from src.config import MEMBERS_DIR
 from src.core.telegram_client import TelegramAccountManager
-from src.ui.workers import AdderWorker
+from src.ui.workers import AdderWorker, CSVAdderWorker
 from src.utils.helpers import load_from_csv
 from src.utils.logger import logger
 
@@ -72,49 +72,63 @@ class AdderTab(QWidget):
         options_layout = QHBoxLayout()
         
         limit_layout = QHBoxLayout()
-        limit_layout.addWidget(QLabel("Số lượng thêm:"))
-        self.limit_input = QSpinBox()
-        self.limit_input.setRange(0, 10000)
-        self.limit_input.setValue(0)
-        self.limit_input.setSpecialValueText("Tất cả")
-        limit_layout.addWidget(self.limit_input)
-        options_layout.addLayout(limit_layout)
+        limit_layout.addWidget(QLabel("Giới hạn:"))
+        self.limit_spin = QSpinBox()
+        self.limit_spin.setRange(0, 10000)
+        self.limit_spin.setValue(0)
+        self.limit_spin.setSpecialValueText("Không giới hạn")
+        limit_layout.addWidget(self.limit_spin)
         
         delay_layout = QHBoxLayout()
-        delay_layout.addWidget(QLabel("Độ trễ (giây):"))
-        self.delay_input = QSpinBox()
-        self.delay_input.setRange(5, 300)
-        self.delay_input.setValue(30)
-        delay_layout.addWidget(self.delay_input)
+        delay_layout.addWidget(QLabel("Thời gian chờ (giây):"))
+        self.delay_spin = QSpinBox()
+        self.delay_spin.setRange(30, 300)
+        self.delay_spin.setValue(60)
+        delay_layout.addWidget(self.delay_spin)
+        
+        options_layout.addLayout(limit_layout)
         options_layout.addLayout(delay_layout)
         
-        members_layout.addLayout(options_layout)
+        # Thêm nút thêm từ CSV trực tiếp
+        direct_csv_layout = QHBoxLayout()
+        direct_csv_layout.addWidget(QLabel("Thêm trực tiếp từ CSV:"))
+        self.add_from_csv_btn = QPushButton("Thêm từ CSV")
+        self.add_from_csv_btn.clicked.connect(self.add_from_csv)
+        direct_csv_layout.addWidget(self.add_from_csv_btn)
         
-        # Danh sách thành viên đã tải
+        members_layout.addLayout(options_layout)
+        members_layout.addLayout(direct_csv_layout)
+        
+        # Danh sách thành viên
         self.members_list = QListWidget()
         members_layout.addWidget(self.members_list)
         
         members_group.setLayout(members_layout)
         layout.addWidget(members_group)
         
-        # Nút thêm và tiến trình
-        add_layout = QVBoxLayout()
+        # Nút thêm thành viên
+        buttons_layout = QHBoxLayout()
         self.add_btn = QPushButton("Thêm thành viên")
-        self.add_btn.clicked.connect(self.start_adding)
-        add_layout.addWidget(self.add_btn)
+        self.add_btn.clicked.connect(self.add_members)
+        self.add_btn.setEnabled(False)
+        buttons_layout.addWidget(self.add_btn)
         
+        layout.addLayout(buttons_layout)
+        
+        # Hiển thị kết quả
+        results_group = QGroupBox("Kết quả")
+        results_layout = QVBoxLayout()
+        
+        progress_layout = QHBoxLayout()
         self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
-        add_layout.addWidget(self.progress_bar)
+        progress_layout.addWidget(self.progress_bar)
         
         self.status_label = QLabel("Sẵn sàng")
-        add_layout.addWidget(self.status_label)
+        progress_layout.addWidget(self.status_label)
         
-        layout.addLayout(add_layout)
-        
-        # Kết quả thêm thành viên
-        results_group = QGroupBox("Kết quả thêm thành viên")
-        results_layout = QVBoxLayout()
+        results_layout.addLayout(progress_layout)
         
         self.results_text = QTextEdit()
         self.results_text.setReadOnly(True)
@@ -136,78 +150,12 @@ class AdderTab(QWidget):
         # Cập nhật trạng thái nút thêm
         self.update_add_button_state()
     
-    def update_add_button_state(self):
-        """Cập nhật trạng thái nút thêm thành viên"""
-        has_account = self.account_combo.count() > 0
-        has_members = len(self.members) > 0
-        self.add_btn.setEnabled(has_account and has_members)
-    
-    def check_account_authorized(self, phone: str) -> bool:
-        """
-        Kiểm tra xem tài khoản đã được xác thực chưa
-        
-        Args:
-            phone: Số điện thoại tài khoản cần kiểm tra
-            
-        Returns:
-            True nếu tài khoản đã xác thực, False nếu chưa
-        """
-        client = self.account_manager.get_client(phone)
-        if not client:
-            return False
-        
-        try:
-            client.connect()
-            authorized = client.is_user_authorized()
-            client.disconnect()
-            return authorized
-        except Exception as e:
-            logger.error(f"Lỗi kiểm tra xác thực: {str(e)}")
-            return False
-    
-    def authenticate_account(self, phone: str) -> bool:
-        """
-        Xác thực tài khoản Telegram
-        
-        Args:
-            phone: Số điện thoại của tài khoản
-            
-        Returns:
-            True nếu xác thực thành công, False nếu thất bại
-        """
-        # Hàm callback để lấy mã xác thực
-        def code_callback():
-            code, ok = QInputDialog.getText(self, "Xác thực", f"Nhập mã xác thực cho {phone}:")
-            if ok and code.strip():
-                return code.strip()
-            return ""
-        
-        # Hàm callback để lấy mật khẩu 2FA nếu có
-        def password_callback():
-            password, ok = QInputDialog.getText(
-                self, "Xác thực 2FA", f"Nhập mật khẩu 2FA cho {phone}:", 
-                QLineEdit.EchoMode.Password
-            )
-            if ok and password.strip():
-                return password.strip()
-            return ""
-        
-        # Thực hiện xác thực
-        success, error = self.account_manager.authenticate(phone, code_callback, password_callback)
-        
-        if success:
-            QMessageBox.information(self, "Thành công", f"Đã xác thực tài khoản {phone} thành công")
-            return True
-        else:
-            QMessageBox.warning(self, "Lỗi", f"Xác thực thất bại: {error}")
-            return False
-    
     def browse_load_path(self):
         """Chọn file CSV chứa danh sách thành viên"""
         path, _ = QFileDialog.getOpenFileName(
             self,
             "Chọn file CSV chứa danh sách thành viên",
-            str(TEMP_DIR),
+            str(MEMBERS_DIR),
             "CSV Files (*.csv)"
         )
         
@@ -228,8 +176,8 @@ class AdderTab(QWidget):
             self.members_list.clear()
             for member in self.members:
                 username = member.get('username', '') or "No username"
-                name = f"{member.get('first_name', '')} {member.get('last_name', '')}".strip() or "No name"
-                item_text = f"{username} - {name}"
+                user_id = member.get('user_id', member.get('id', ''))
+                item_text = f"{username} - {user_id}"
                 
                 item = QListWidgetItem(item_text)
                 item.setData(Qt.ItemDataRole.UserRole, member)
@@ -247,120 +195,202 @@ class AdderTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Lỗi", f"Không thể tải file CSV: {str(e)}")
     
-    def start_adding(self):
-        """Bắt đầu thêm thành viên"""
-        if self.account_combo.count() == 0:
-            QMessageBox.warning(self, "Lỗi", "Không có tài khoản nào. Vui lòng thêm tài khoản trước.")
-            return
+    def update_add_button_state(self):
+        """Cập nhật trạng thái nút thêm"""
+        has_account = self.account_combo.count() > 0
+        has_members = len(self.members) > 0 or bool(self.load_path_input.text().strip())
+        target_valid = bool(self.target_input.text().strip())
         
+        self.add_btn.setEnabled(has_account and has_members and target_valid)
+        self.add_from_csv_btn.setEnabled(has_account and target_valid)
+    
+    def add_members(self):
+        """Thêm thành viên vào nhóm/kênh"""
         if not self.members:
-            QMessageBox.warning(self, "Lỗi", "Không có danh sách thành viên. Vui lòng tải danh sách trước.")
+            QMessageBox.warning(self, "Lỗi", "Không có dữ liệu thành viên để thêm")
             return
         
-        # Lấy thông tin input
+        # Lấy thông tin tài khoản và nhóm đích
+        current_idx = self.account_combo.currentIndex()
+        if current_idx < 0:
+            QMessageBox.warning(self, "Lỗi", "Vui lòng chọn tài khoản")
+            return
+        
         account = self.account_combo.currentData()
         phone = account['phone']
-        target_group = self.target_input.text().strip()
-        limit = self.limit_input.value()
-        delay = self.delay_input.value()
         
+        target_group = self.target_input.text().strip()
         if not target_group:
             QMessageBox.warning(self, "Lỗi", "Vui lòng nhập username hoặc link của nhóm/kênh đích")
             return
         
-        # Kiểm tra xác thực tài khoản
-        if not self.check_account_authorized(phone):
-            reply = QMessageBox.question(
-                self, 
-                "Cần xác thực", 
-                f"Tài khoản {phone} chưa được xác thực. Bạn có muốn xác thực ngay bây giờ?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.Yes
-            )
-            
-            if reply == QMessageBox.StandardButton.Yes:
-                if not self.authenticate_account(phone):
-                    return  # Nếu xác thực thất bại, dừng lại
-            else:
-                return  # Nếu không xác thực, dừng lại
+        # Lấy giới hạn và thời gian chờ
+        limit = self.limit_spin.value()
+        if limit > 0 and limit < len(self.members):
+            self.members = self.members[:limit]
         
-        # Lấy số lượng thành viên cần thêm
-        members_to_add = self.members
-        if limit > 0 and limit < len(members_to_add):
-            members_to_add = members_to_add[:limit]
+        delay = self.delay_spin.value()
         
-        # Tạo worker thread để thêm thành viên
-        self.adder_worker = AdderWorker(
+        # Cập nhật giao diện
+        self.add_btn.setEnabled(False)
+        self.add_from_csv_btn.setEnabled(False)
+        self.results_text.clear()
+        self.progress_bar.setValue(0)
+        self.status_label.setText("Đang thêm thành viên...")
+        
+        # Tạo worker thread
+        self.worker = AdderWorker(
             self.account_manager,
             phone,
             target_group,
-            members_to_add,
+            self.members,
             delay
         )
         
         # Kết nối signals
-        self.adder_worker.progress_signal.connect(self.update_progress)
-        self.adder_worker.finished_signal.connect(self.adding_finished)
-        self.adder_worker.error_signal.connect(self.adding_error)
+        self.worker.progress_signal.connect(self.adding_progress)
+        self.worker.finished_signal.connect(self.adding_finished)
+        self.worker.error_signal.connect(self.adding_error)
         
-        # Cập nhật UI
-        self.add_btn.setEnabled(False)
-        self.status_label.setText("Đang thêm thành viên...")
-        self.progress_bar.setValue(0)
-        self.results_text.clear()
-        
-        # Bắt đầu worker
-        self.adder_worker.start()
+        # Bắt đầu thread
+        self.worker.start()
     
-    def update_progress(self, current, total, success, member, error_msg=""):
+    def add_from_csv(self):
+        """Thêm thành viên trực tiếp từ file CSV"""
+        # Lấy đường dẫn file CSV
+        file_path = self.load_path_input.text().strip()
+        if not file_path:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Chọn file CSV chứa danh sách thành viên",
+                str(MEMBERS_DIR),
+                "CSV Files (*.csv)"
+            )
+            
+            if not file_path:
+                return
+            
+            self.load_path_input.setText(file_path)
+        
+        # Lấy thông tin tài khoản và nhóm đích
+        current_idx = self.account_combo.currentIndex()
+        if current_idx < 0:
+            QMessageBox.warning(self, "Lỗi", "Vui lòng chọn tài khoản")
+            return
+        
+        account = self.account_combo.currentData()
+        phone = account['phone']
+        
+        target_group = self.target_input.text().strip()
+        if not target_group:
+            QMessageBox.warning(self, "Lỗi", "Vui lòng nhập username hoặc link của nhóm/kênh đích")
+            return
+        
+        # Lấy thời gian chờ
+        delay = self.delay_spin.value()
+        
+        # Cập nhật giao diện
+        self.add_btn.setEnabled(False)
+        self.add_from_csv_btn.setEnabled(False)
+        self.results_text.clear()
+        self.progress_bar.setValue(0)
+        self.status_label.setText("Đang thêm thành viên từ CSV...")
+        
+        # Tạo worker thread
+        self.csv_worker = CSVAdderWorker(
+            self.account_manager,
+            phone,
+            target_group,
+            file_path,
+            delay
+        )
+        
+        # Kết nối signals
+        self.csv_worker.progress_signal.connect(self.adding_progress)
+        self.csv_worker.finished_signal.connect(self.csv_adding_finished)
+        self.csv_worker.error_signal.connect(self.adding_error)
+        
+        # Bắt đầu thread
+        self.csv_worker.start()
+    
+    def adding_progress(self, current, total, success, member, error_msg=""):
         """Cập nhật tiến trình thêm thành viên"""
-        percent = min(100, int(current * 100 / total))
-        self.progress_bar.setValue(percent)
+        # Cập nhật progress bar
+        progress = int((current / total) * 100)
+        self.progress_bar.setValue(progress)
         
         # Cập nhật status
-        self.status_label.setText(f"Đang thêm: {current}/{total} thành viên")
+        self.status_label.setText(f"Đang thêm: {current}/{total} ({progress}%)")
         
-        # Thêm kết quả vào text box
-        username = member.get('username', '') or member.get('id', '')
+        # Cập nhật log
+        log_text = f"[{current}/{total}] "
         if success:
-            result = f"✅ Đã thêm thành công: {username}\n"
+            log_text += f"Đã thêm thành công: {member.get('username', member.get('id', 'Unknown'))}"
         else:
-            result = f"❌ Không thể thêm: {username} - Lỗi: {error_msg}\n"
+            log_text += f"Thêm thất bại: {member.get('username', member.get('id', 'Unknown'))} - {error_msg}"
         
-        self.results_text.append(result)
-        # Cuộn xuống cuối
-        self.results_text.verticalScrollBar().setValue(
-            self.results_text.verticalScrollBar().maximum()
-        )
+        self.results_text.append(log_text)
+        # Cuộn xuống dưới để hiển thị log mới nhất
+        self.results_text.verticalScrollBar().setValue(self.results_text.verticalScrollBar().maximum())
     
     def adding_finished(self, success, failed):
         """Xử lý khi thêm thành viên hoàn tất"""
-        self.add_btn.setEnabled(True)
+        self.status_label.setText("Hoàn tất!")
         self.progress_bar.setValue(100)
-        self.status_label.setText(f"Hoàn tất! Thành công: {len(success)}, Thất bại: {len(failed)}")
         
-        # Thêm tổng kết vào text box
+        success_count = len(success)
+        failed_count = len(failed)
+        
         summary = f"\n=== KẾT QUẢ ===\n"
-        summary += f"Tổng số thành viên: {len(success) + len(failed)}\n"
-        summary += f"Thành công: {len(success)}\n"
-        summary += f"Thất bại: {len(failed)}\n"
+        summary += f"Tổng số: {success_count + failed_count}\n"
+        summary += f"Thành công: {success_count}\n"
+        summary += f"Thất bại: {failed_count}\n"
         
         self.results_text.append(summary)
         
-        # Hiển thị thông báo
+        # Thông báo kết quả
         QMessageBox.information(
-            self, 
-            "Thành công", 
-            f"Đã hoàn tất việc thêm thành viên!\nThành công: {len(success)}, Thất bại: {len(failed)}"
+            self,
+            "Thành công",
+            f"Đã thêm {success_count} thành viên, {failed_count} thất bại"
         )
+        
+        # Cập nhật giao diện
+        self.add_btn.setEnabled(True)
+        self.add_from_csv_btn.setEnabled(True)
+    
+    def csv_adding_finished(self, success_count, failed_count):
+        """Xử lý khi thêm thành viên từ CSV hoàn tất"""
+        self.status_label.setText("Hoàn tất!")
+        self.progress_bar.setValue(100)
+        
+        summary = f"\n=== KẾT QUẢ ===\n"
+        summary += f"Tổng số: {success_count + failed_count}\n"
+        summary += f"Thành công: {success_count}\n"
+        summary += f"Thất bại: {failed_count}\n"
+        
+        self.results_text.append(summary)
+        
+        # Thông báo kết quả
+        QMessageBox.information(
+            self,
+            "Thành công",
+            f"Đã thêm {success_count} thành viên, {failed_count} thất bại"
+        )
+        
+        # Cập nhật giao diện
+        self.add_btn.setEnabled(True)
+        self.add_from_csv_btn.setEnabled(True)
     
     def adding_error(self, error):
         """Xử lý khi có lỗi"""
-        self.add_btn.setEnabled(True)
         self.status_label.setText(f"Lỗi: {error}")
         
-        # Thêm lỗi vào text box
-        self.results_text.append(f"\n❌ LỖI: {error}\n")
+        self.results_text.append(f"\n!!! LỖI: {error}")
         
-        # Hiển thị thông báo
-        QMessageBox.critical(self, "Lỗi", f"Thêm thành viên thất bại: {error}") 
+        # Thông báo lỗi
+        QMessageBox.critical(self, "Lỗi", f"Thêm thành viên thất bại: {error}")
+        
+        # Cập nhật giao diện
+        self.add_btn.setEnabled(True)
+        self.add_from_csv_btn.setEnabled(True) 
