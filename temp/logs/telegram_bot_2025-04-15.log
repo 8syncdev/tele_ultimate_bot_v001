@@ -22,3 +22,16 @@
 2025-04-15 19:29:44,089 - telegram_bot - INFO - Hoàn tất scrape, tổng cộng 8 thành viên
 2025-04-15 19:31:27,786 - telegram_bot - INFO - Bắt đầu scrape từ PythonHub với giới hạn: 1000
 2025-04-15 19:31:27,834 - telegram_bot - ERROR - Lỗi khi scrape: Chat admin privileges are required to do that in the specified chat (for example, to send a message in a channel which is not yours), or invalid permissions used for the channel or group (caused by GetParticipantsRequest)
+2025-04-15 19:37:53,190 - telegram_bot - INFO - Đã tìm thêm 200 thành viên với từ khóa 'a', tổng: 200
+2025-04-15 19:37:53,190 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'a': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 19:37:53,374 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'b', tổng: 377
+2025-04-15 19:37:53,374 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'b': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 19:37:53,650 - telegram_bot - INFO - Đã tìm thêm 175 thành viên với từ khóa 'c', tổng: 552
+2025-04-15 19:37:53,651 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'c': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 19:37:53,807 - telegram_bot - INFO - Đã tìm thêm 165 thành viên với từ khóa 'd', tổng: 717
+2025-04-15 19:37:53,808 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'd': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 19:37:53,974 - telegram_bot - INFO - Đã tìm thêm 177 thành viên với từ khóa 'e', tổng: 894
+2025-04-15 19:37:53,975 - telegram_bot - ERROR - Lỗi khi scrape với từ khóa 'e': unsupported operand type(s) for -: 'NoneType' and 'float'
+2025-04-15 19:37:54,126 - telegram_bot - INFO - Đã tìm thêm 182 thành viên với từ khóa 'f', tổng: 1076
+2025-04-15 19:37:54,126 - telegram_bot - INFO - Đã đạt giới hạn 1000 thành viên, dừng scrape
+2025-04-15 19:37:54,127 - telegram_bot - INFO - Đã scrape tổng cộng 1000 thành viên
